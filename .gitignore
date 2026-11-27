@@ -1,0 +1,10 @@
+ai_env/
+__pycache__/
+*.pyc
+findit.db
+findit_backup.db
+static/uploads/
+.DS_Store
+.vscode/
+image1.jpeg
+image2.jpeg

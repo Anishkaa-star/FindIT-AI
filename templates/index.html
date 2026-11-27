@@ -1,0 +1,665 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FindIt AI | Campus Lost & Found</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <header class="topbar">
+        <a href="#" class="brand">
+            <span class="brand-icon">F</span>
+            <span>FindIt <strong>AI</strong></span>
+        </a>
+
+        <nav>
+            <a href="#dashboard">Dashboard</a>
+            <a href="#report">Report Item</a>
+            <a href="#items">Browse Items</a>
+        </nav>
+
+        <span class="status-label">
+            <span class="status-dot"></span> Campus Assistant
+        </span>
+    </header>
+
+    <main class="container" id="dashboard">
+
+        <section class="hero">
+            <div class="hero-content">
+                <span class="eyebrow">SMART CAMPUS LOST & FOUND</span>
+                <h1>Lost something?<br><span>Let's find it.</span></h1>
+                <p>
+                    Report lost belongings, discover found items,
+                    and let AI help connect the two.
+                </p>
+
+                <a href="#report" class="hero-button">Report an Item <span>→</span></a>
+            </div>
+
+            <div class="hero-art">
+                <div class="art-circle circle-one"></div>
+                <div class="art-circle circle-two"></div>
+                <div class="art-card">
+                    <span class="art-search">⌕</span>
+                    <div>
+                        <strong>Find what matters.</strong>
+                        <small>AI-powered item matching</small>
+                    </div>
+                    <span class="art-check">✓</span>
+                </div>
+                <div class="floating-icon icon-one">🎒</div>
+                <div class="floating-icon icon-two">🔑</div>
+                <div class="floating-icon icon-three">📱</div>
+            </div>
+        </section>
+
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon purple-icon">▣</div>
+                <div>
+                    <p>Total Reports</p>
+                    <h2 id="totalCount">0</h2>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon green-icon">✓</div>
+                <div>
+                    <p>Items Found</p>
+                    <h2 id="foundCount">0</h2>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon orange-icon">⌕</div>
+                <div>
+                    <p>Items Lost</p>
+                    <h2 id="lostCount">0</h2>
+                </div>
+            </div>
+        </section>
+
+        <section class="dashboard-grid">
+
+            <div class="panel report-panel" id="report">
+                <div class="section-heading">
+                    <div>
+                        <span class="eyebrow">CONTRIBUTE TO YOUR CAMPUS</span>
+                        <h2>Report an Item</h2>
+                        <p>Help someone find what they've lost.</p>
+                    </div>
+                    <span class="heading-icon">＋</span>
+                </div>
+
+                <form id="reportForm">
+
+                    <label for="itemType">What would you like to report?</label>
+                    <select id="itemType">
+                        <option value="found">I found an item</option>
+                        <option value="lost">I lost an item</option>
+                    </select>
+
+                    <label for="itemName">Item name</label>
+                    <input
+                        type="text"
+                        id="itemName"
+                        placeholder="e.g. Blue water bottle"
+                        required
+                    >
+
+                    <label for="itemLocation">Location</label>
+                    <input
+                        type="text"
+                        id="itemLocation"
+                        placeholder="e.g. College library"
+                        required
+                    >
+
+                    <label for="itemDescription">Description</label>
+                    <textarea
+                        id="itemDescription"
+                        placeholder="Add colour, brand or other identifying details..."
+                    ></textarea>
+
+                    <label for="itemImage">Upload a photo <span class="optional">(optional)</span></label>
+                    <input
+                        type="file"
+                        id="itemImage"
+                        accept="image/png, image/jpeg"
+                    >
+
+                    <button type="submit" class="primary-button" id="submitButton">
+                        Submit Report <span>→</span>
+                    </button>
+
+                </form>
+            </div>
+
+            <div class="right-column">
+
+                <div class="panel search-panel">
+                    <div class="section-heading">
+                        <div>
+                            <span class="eyebrow">LOOKING FOR SOMETHING?</span>
+                            <h2>Search Items</h2>
+                            <p>Search by item name, description or location.</p>
+                        </div>
+                        <span class="heading-icon">⌕</span>
+                    </div>
+
+                    <div class="search-row">
+                        <input
+                            type="text"
+                            id="searchInput"
+                            placeholder="Try searching for a water bottle..."
+                        >
+                        <button onclick="searchItem()" class="primary-button">Search</button>
+                    </div>
+
+                    <button class="clear-search" onclick="clearSearch()">Clear search</button>
+                </div>
+
+                <div class="tip-card">
+                    <span class="tip-icon">✦</span>
+                    <div>
+                        <h3>AI-powered matching</h3>
+                        <p>When you report a lost item with a photo, FindIt AI compares it with photos of reported found items to suggest possible matches.</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="items-section" id="items">
+            <div class="section-heading items-heading">
+                <div>
+                    <span class="eyebrow">CAMPUS COMMUNITY</span>
+                    <h2>Recently Reported Items</h2>
+                    <p>Browse belongings reported by your campus community.</p>
+                </div>
+                <span class="items-count" id="itemsCount">0 items</span>
+            </div>
+
+            <div id="results" class="items-grid"></div>
+        </section>
+
+        <section id="aiMatches" class="ai-section" style="display:none;"></section>
+
+    </main>
+
+    <footer>
+        <div class="footer-brand">FindIt <strong>AI</strong></div>
+        <p>Helping your campus reunite with what matters.</p>
+        <small>Campus Lost & Found Assistant</small>
+    </footer>
+
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <button class="close-button" onclick="closeDetails()" aria-label="Close">×</button>
+            <div id="detailsContent"></div>
+        </div>
+    </div>
+
+
+    <script>
+
+        let allItems = [];
+
+        // REPORT AN ITEM
+
+        document.getElementById("reportForm").addEventListener("submit", reportItem);
+
+        async function reportItem(event) {
+
+            event.preventDefault();
+
+            const name = document.getElementById("itemName").value.trim();
+            const location = document.getElementById("itemLocation").value.trim();
+            const description = document.getElementById("itemDescription").value.trim();
+            const item_type = document.getElementById("itemType").value;
+            const image = document.getElementById("itemImage").files[0];
+
+            if (!name || !location) {
+                alert("Please enter the item name and location!");
+                return;
+            }
+
+            const formData = new FormData();
+
+            formData.append("name", name);
+            formData.append("location", location);
+            formData.append("description", description);
+            formData.append("item_type", item_type);
+
+            if (image) {
+                formData.append("image", image);
+            }
+
+            const submitButton = document.getElementById("submitButton");
+            submitButton.disabled = true;
+            submitButton.textContent = "Submitting...";
+
+            try {
+
+                const response = await fetch("/api/items", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    alert(data.error || "Could not save report.");
+                    return;
+                }
+
+                alert("Item reported successfully!");
+
+                document.getElementById("reportForm").reset();
+
+                await loadItems();
+
+                if (item_type === "lost") {
+                    displayMatches(data.matches || []);
+                } else {
+                    document.getElementById("aiMatches").style.display = "none";
+                    document.getElementById("aiMatches").innerHTML = "";
+                }
+
+            } catch (error) {
+
+                console.error("Report error:", error);
+                alert("Something went wrong while submitting your report.");
+
+            } finally {
+
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Submit Report <span>→</span>';
+
+            }
+        }
+
+
+        // LOAD ALL REPORTED ITEMS
+
+        async function loadItems() {
+
+            try {
+
+                const response = await fetch("/api/items");
+
+                if (!response.ok) {
+                    throw new Error("Could not load items.");
+                }
+
+                const items = await response.json();
+
+                allItems = items;
+                updateStats(items);
+                displayItems(items);
+
+            } catch (error) {
+
+                console.error("Loading items error:", error);
+                document.getElementById("results").textContent =
+                    "Could not load items. Please refresh the page.";
+
+            }
+        }
+
+
+        // UPDATE DASHBOARD COUNTS
+
+        function updateStats(items) {
+
+            const found = items.filter(item => item.item_type === "found").length;
+            const lost = items.filter(item => item.item_type === "lost").length;
+
+            document.getElementById("totalCount").textContent = items.length;
+            document.getElementById("foundCount").textContent = found;
+            document.getElementById("lostCount").textContent = lost;
+            document.getElementById("itemsCount").textContent =
+                items.length + (items.length === 1 ? " item" : " items");
+
+        }
+
+
+        // DISPLAY REPORTED ITEMS
+
+        function displayItems(items) {
+
+            const results = document.getElementById("results");
+
+            results.innerHTML = "";
+
+            if (!items || items.length === 0) {
+
+                results.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">⌕</div>
+                        <h3>No items to display</h3>
+                        <p>Try another search or report an item to get started.</p>
+                    </div>
+                `;
+
+                return;
+            }
+
+            items.forEach(item => {
+
+                const card = document.createElement("article");
+                card.className = "item-card";
+
+                const imageBox = document.createElement("div");
+                imageBox.className = "item-image";
+
+                if (item.image) {
+
+                    const image = document.createElement("img");
+                    image.src = "/static/uploads/" + encodeURIComponent(item.image);
+                    image.alt = item.name;
+                    image.loading = "lazy";
+                    imageBox.appendChild(image);
+
+                } else {
+
+                    imageBox.innerHTML = '<span class="no-photo">No photo available</span>';
+
+                }
+
+                const body = document.createElement("div");
+                body.className = "item-card-body";
+
+                const badge = document.createElement("span");
+                badge.className = "item-badge " +
+                    (item.item_type === "found" ? "found-badge" : "lost-badge");
+                badge.textContent = item.item_type.toUpperCase();
+
+                const heading = document.createElement("h3");
+                heading.textContent = item.name;
+
+                const place = document.createElement("p");
+                place.className = "item-location";
+                place.textContent = "⌖ " + item.location;
+
+                const description = document.createElement("p");
+                description.className = "item-description";
+                description.textContent = item.description || "No description provided.";
+
+                body.appendChild(badge);
+                body.appendChild(heading);
+                body.appendChild(place);
+                body.appendChild(description);
+
+                card.appendChild(imageBox);
+                card.appendChild(body);
+
+                results.appendChild(card);
+
+            });
+
+        }
+
+
+        // SEARCH ITEMS
+
+        function searchItem() {
+
+            const search = document.getElementById("searchInput")
+                .value.trim().toLowerCase();
+
+            if (!search) {
+                alert("Please enter something to search!");
+                return;
+            }
+
+            const matches = allItems.filter(item => {
+
+                const searchableText = [
+                    item.name,
+                    item.location,
+                    item.description
+                ].join(" ").toLowerCase();
+
+                return searchableText.includes(search);
+
+            });
+
+            displayItems(matches);
+
+            document.getElementById("items").scrollIntoView({
+                behavior: "smooth"
+            });
+
+        }
+
+
+        // CLEAR SEARCH
+
+        function clearSearch() {
+
+            document.getElementById("searchInput").value = "";
+            displayItems(allItems);
+
+        }
+
+
+        // DISPLAY AI POSSIBLE MATCHES
+
+        function displayMatches(matches) {
+
+            const results = document.getElementById("aiMatches");
+
+            results.innerHTML = "";
+            results.style.display = "block";
+
+            const heading = document.createElement("div");
+            heading.className = "section-heading";
+            heading.innerHTML = `
+                <div>
+                    <span class="eyebrow">AI IMAGE ANALYSIS</span>
+                    <h2>Possible Matches</h2>
+                    <p>These found items look visually similar to your lost item.</p>
+                </div>
+                <span class="heading-icon">✦</span>
+            `;
+
+            results.appendChild(heading);
+
+            if (!matches || matches.length === 0) {
+
+                const empty = document.createElement("div");
+                empty.className = "empty-state";
+                empty.innerHTML = `
+                    <h3>No possible matches found yet</h3>
+                    <p>Your report has been saved. Check again as more found items are reported.</p>
+                `;
+                results.appendChild(empty);
+
+                return;
+            }
+
+            const grid = document.createElement("div");
+            grid.className = "items-grid";
+
+            matches.forEach(item => {
+
+                const card = document.createElement("article");
+                card.className = "item-card match-card";
+
+                const imageBox = document.createElement("div");
+                imageBox.className = "item-image";
+
+                if (item.image) {
+
+                    const image = document.createElement("img");
+                    image.src = "/static/uploads/" + encodeURIComponent(item.image);
+                    image.alt = item.name;
+                    image.loading = "lazy";
+                    imageBox.appendChild(image);
+
+                } else {
+
+                    imageBox.innerHTML = '<span class="no-photo">No photo available</span>';
+
+                }
+
+                const body = document.createElement("div");
+                body.className = "item-card-body";
+
+                const badge = document.createElement("span");
+                badge.className = "item-badge found-badge";
+                badge.textContent = "POSSIBLE FOUND MATCH";
+
+                const heading = document.createElement("h3");
+                heading.textContent = item.name;
+
+                const location = document.createElement("p");
+                location.className = "item-location";
+                location.textContent = "⌖ " + item.location;
+
+                const description = document.createElement("p");
+                description.className = "item-description";
+                description.textContent =
+                    item.description || "No description provided.";
+
+                const similarity = document.createElement("p");
+                similarity.className = "similarity-score";
+                similarity.textContent =
+                    "Image similarity: " + item.similarity + "%";
+
+                const detailsButton = document.createElement("button");
+                detailsButton.className = "secondary-button";
+                detailsButton.textContent = "View Details";
+                detailsButton.onclick = () => showDetails(item);
+
+                body.appendChild(badge);
+                body.appendChild(heading);
+                body.appendChild(location);
+                body.appendChild(description);
+                body.appendChild(similarity);
+                body.appendChild(detailsButton);
+
+                card.appendChild(imageBox);
+                card.appendChild(body);
+
+                grid.appendChild(card);
+
+            });
+
+            results.appendChild(grid);
+
+            results.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+
+        }
+
+
+        // OPEN ITEM DETAILS
+
+        function showDetails(item) {
+
+            const content = document.getElementById("detailsContent");
+            content.innerHTML = "";
+
+            const layout = document.createElement("div");
+            layout.className = "details-layout";
+
+            const imageBox = document.createElement("div");
+            imageBox.className = "details-photo";
+
+            if (item.image) {
+
+                const image = document.createElement("img");
+                image.src = "/static/uploads/" + encodeURIComponent(item.image);
+                image.alt = item.name;
+                imageBox.appendChild(image);
+
+            } else {
+
+                imageBox.textContent = "No photo available";
+
+            }
+
+            const info = document.createElement("div");
+            info.className = "details-info";
+
+            const heading = document.createElement("h2");
+            heading.textContent = item.name;
+
+            const badge = document.createElement("span");
+            badge.className = "item-badge found-badge";
+            badge.textContent = "FOUND";
+
+            const location = document.createElement("p");
+            location.textContent = "Location: " + item.location;
+
+            const description = document.createElement("p");
+            description.textContent =
+                "Description: " + (item.description || "Not provided");
+
+            const similarity = document.createElement("p");
+            similarity.textContent =
+                "AI image similarity: " + item.similarity + "%";
+
+            const note = document.createElement("small");
+            note.textContent =
+                "Similarity is a visual comparison, not confirmation that this is the same physical item.";
+
+            info.appendChild(badge);
+            info.appendChild(heading);
+            info.appendChild(location);
+            info.appendChild(description);
+            info.appendChild(similarity);
+            info.appendChild(note);
+
+            layout.appendChild(imageBox);
+            layout.appendChild(info);
+
+            content.appendChild(layout);
+
+            document.getElementById("detailsModal").style.display = "flex";
+
+        }
+
+
+        // CLOSE ITEM DETAILS
+
+        function closeDetails() {
+
+            document.getElementById("detailsModal").style.display = "none";
+
+        }
+
+        document.getElementById("detailsModal").addEventListener("click", function(event) {
+
+            if (event.target === this) {
+                closeDetails();
+            }
+
+        });
+
+        document.addEventListener("keydown", function(event) {
+
+            if (event.key === "Escape") {
+                closeDetails();
+            }
+
+        });
+
+
+        // LOAD ITEMS WHEN WEBSITE OPENS
+
+        loadItems();
+
+    </script>
+
+</body>
+</html>
